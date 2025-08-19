@@ -1,0 +1,19 @@
+[project]
+name = "av-preprocessing"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Juan Montesinos", email = "juan.montesinos@csem.ch" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "fire>=0.7.1",
+    "imageio>=2.37.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[tool.ruff]
+line-length = 120
