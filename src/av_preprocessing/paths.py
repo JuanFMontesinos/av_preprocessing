@@ -1,7 +1,12 @@
 from pathlib import Path
 from typing import List, Optional, Iterable
 
-_default_video_extensions: List[str] = [".mp4", ".mpg"]  # did you mean .mpg (not .mgp)?
+AV_PREPROCESSING_LIB_PATH = Path(__file__).resolve().parent
+AVH_MEAN_FACE_PATH = AV_PREPROCESSING_LIB_PATH / "assets" / "mean_face.npy"
+
+LANDMARK_LIB_PATH = AV_PREPROCESSING_LIB_PATH.parents[1] / "3DDFA_V2"
+
+_default_video_extensions: List[str] = [".mp4", ".mpg"]
 _default_audio_extensions: List[str] = [".wav", ".mp3"]
 
 
@@ -31,4 +36,3 @@ def list_of_audio_files(
     exts = [e.lower() if e.startswith(".") else f".{e.lower()}" for e in (audio_ext or _default_audio_extensions)]
 
     return [p for p in directory.rglob("*") if p.is_file() and p.suffix.lower() in exts and "__MACOSX" not in str(p)]
-

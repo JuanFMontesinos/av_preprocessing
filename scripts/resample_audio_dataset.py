@@ -3,9 +3,9 @@ File: resample_audio_dataset.py
 Author: Juan Montesinos
 Created: 19/08/2025
 
-Resamples all audio files in a directory to a specified sample rate keeping the folder structure intact.
+Resamples all audio files in a directory to a specified sample rate and mono channel, keeping the folder structure intact.
 How to use:
-    uv run scripts/resample_audio_dataset.py <input_dir> [<output_dir>] [<sample_rate>]
+    uv run scripts/resample_audio_dataset.py <dataset_dir> [<dst_dir>] [<sample_rate>]
 
 """
 
@@ -22,28 +22,29 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 
 def resample_audio_dataset(
-    input_dir: str,
-    output_dir: Optional[str] = None,
+    dataset_dir: str,
+    dst_dir: Optional[str] = None,
     sample_rate: int = 16000,
 ):
-    input_dir = Path(input_dir)
+    dataset_dir = Path(dataset_dir)
 
-    if output_dir is None:
-        output_dir = input_dir.parent / f"audio_{sample_rate}"
+    if dst_dir is None:
+        dst_dir = dataset_dir.parent / f"audio_{sample_rate}"
     else:
-        output_dir = Path(output_dir)
+        dst_dir = Path(dst_dir)
 
-    audio_files = avp.paths.list_of_audio_files(input_dir)
-
-    for file in audio_files:
+    audio_files = avp.paths.list_of_audio_files(dataset_dir)
+    n_audio_files = len(audio_files)
+    
+    for i, file in enumerate(audio_files):
         # keep relative path to preserve folder structure
-        rel_path = file.relative_to(input_dir)
-        dst_file = output_dir / rel_path
+        rel_path = file.relative_to(dataset_dir)
+        dst_file = dst_dir / rel_path
 
         # create output directory if needed
         dst_file.parent.mkdir(parents=True, exist_ok=True)
 
-        avp.functionals.resample_audio(file.as_posix(), dst_file.as_posix(), sample_rate, verbose=False)
+        avp.functionals.resample_audio(file.as_posix(), dst_file.as_posix(), sample_rate, verbose=False, prefix=f"[{i+1}/{n_audio_files}] ")
 
 
 if __name__ == "__main__":

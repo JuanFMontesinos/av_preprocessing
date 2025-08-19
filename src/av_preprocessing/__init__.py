@@ -1,1 +1,1 @@
-from . import paths, ffmpeg, functionals, functionals as F # noqa: F401
+from . import paths, ffmpeg, functionals, functionals as F  # noqa: F401
