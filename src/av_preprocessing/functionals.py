@@ -1,16 +1,18 @@
 # av_preprocessing>functionals.py
 import logging
 import os
+import importlib.util
 import sys
 from collections import deque
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Dict, Any, Union
+from typing import Literal, Optional, Tuple, Dict, Any, Union, List
 
+import torch
 import imageio
 import numpy as np
 import yaml
 
-from . import ffmpeg, paths
+from . import ffmpeg, paths, av_hubert
 
 
 def resample_audio(src_path: str, dst_path: str, target_sr: int, verbose=False, prefix: str = ""):
@@ -105,9 +107,9 @@ def extract_landmarks(
         metadata_dst = Path(metadata_dst)
         save_metadata = True
         ext = metadata_dst.suffix.lower()
-        if "json" not in ext:
-            logging.warning(f"Only json metadata format supported, converting {ext} to .json")
-        metadata_dst = metadata_dst.with_suffix(".json")
+        if "yaml" not in ext:
+            logging.warning(f"Only yaml metadata format supported, converting {ext} to .yaml")
+        metadata_dst = metadata_dst.with_suffix(".yaml")
         if not metadata_dst.parent.exists():
             metadata_dst.parent.mkdir(parents=True, exist_ok=True)
 
@@ -268,3 +270,77 @@ def extract_landmarks(
         with metadata_dst.open("w") as f:
             yaml.dump(metadata, f)
     return False, metadata
+
+
+def crop_rois(
+    input_video_path: str, output_path: Union[Path, str], landmarks: List[np.ndarray], mean_face: np.ndarray, fps=25
+):
+    """
+    Crops the video according to the given landmarks
+    :param input_video_path: str, Path to input video
+    :param output_path: str, Path to output video
+    :param landmarks: list, List of  T landmarks of shape 68x2
+    """
+    STD_SIZE = (256, 256)
+    stablePntsIDs = [33, 36, 39, 42, 45]
+
+    rois = av_hubert.crop_patch(
+        input_video_path,
+        landmarks,
+        mean_face,
+        stablePntsIDs,
+        STD_SIZE,
+        window_margin=12,
+        start_idx=48,
+        stop_idx=68,
+        crop_height=96,
+        crop_width=96,
+    )
+    imageio.mimwrite(output_path, [x for x in np.flip(rois, axis=-1)], fps=fps)  # Flip to convert bgr into rgb
+    return rois
+
+
+def extract_visual_feature(video: Union[str, np.ndarray],model,task, max_length=250, **kwargs) -> torch.Tensor:
+    # The model has been trained with sequences of 20s (500 frames)
+    # Hypothesize using larger sequences may be harmful
+    # https://www.juanmontesinos.com/av-inp-dev/data_analysis/visual_features.html
+    """
+    video: [str,np.array] Path to video or np.array of frames
+    """
+    spec = importlib.util.spec_from_file_location(
+        "avhubert_utils", paths.AV_HUBERT_LIB_PATH / "avhubert" / "utils.py"
+    )
+    avhubert_utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(avhubert_utils)
+    model.eval()
+    transform = avhubert_utils.Compose(
+        [
+            avhubert_utils.Normalize(0.0, 255.0),
+            avhubert_utils.CenterCrop((task.cfg.image_crop_size, task.cfg.image_crop_size)),
+            avhubert_utils.Normalize(task.cfg.image_mean, task.cfg.image_std),
+        ]
+    )
+    if isinstance(video, str):
+        frames = avhubert_utils.load_video(video)
+        logging.info(f"\tLoad video {video}: shape {frames.shape}")
+    else:
+        frames = video
+    frames = transform(frames)
+    logging.info(f"\tCenter crop video to: {frames.shape}")
+    temp_feats = frames.shape[0]
+    frames: torch.Tensor = torch.FloatTensor(frames).unsqueeze(dim=0).unsqueeze(dim=0)
+    if torch.cuda.is_available():
+        frames = frames.cuda()
+    output = torch.empty(temp_feats, 768, dtype=frames.dtype, device=frames.device)
+    model = model.encoder.w2v_model
+    with torch.no_grad():
+        # split the frames into chunks of size max_length
+        for i in range(0, temp_feats, max_length):
+            end = min(i + max_length, temp_feats)
+            feature, _ = model.extract_finetune(
+                source={"video": frames[:, :, i:end], "audio": None}, padding_mask=None, output_layer=None
+            )
+            output[i:end] = feature
+        feature = feature.squeeze(dim=0)
+
+    return output

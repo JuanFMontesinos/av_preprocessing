@@ -3,8 +3,10 @@ File: extract_landmarks_from_a_dataset.py
 Author: Juan Montesinos
 Created: 19/08/2025
 
-Resamples all audio files in a directory to a specified sample rate and mono channel, keeping the folder structure intact.
-How to use:
+Extracts face landmarks from all videos in a dataset and saves then in a specified directory. Additionally, 
+it extracts metadata that containes information about the video processing and the number of frames.
+
+
     uv run scripts/extract_landmarks_from_a_dataset.py <dataset_dir> [--dst_dir <destination_dir>] [--save_videos]
 """
 
@@ -42,7 +44,7 @@ def process_dataset(dataset_dir: str, dst_dir: Optional[str] = None, save_videos
             video_path=video_file,
             video_dst=videos_dst_dir / video_file.relative_to(dataset_dir) if save_videos else None,
             landmarks_dst=ld_dst_dir / video_file.relative_to(dataset_dir).with_suffix(".npy"),
-            metadata_dst=ld_dst_dir / video_file.relative_to(dataset_dir).with_suffix(".json"),
+            metadata_dst=ld_dst_dir / video_file.relative_to(dataset_dir).with_suffix(".yaml"),
         )
         if failed:
             logging.error(f"Failed to process {video_file.name}. Skipping.")

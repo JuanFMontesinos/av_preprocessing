@@ -36,3 +36,15 @@ def list_of_audio_files(
     exts = [e.lower() if e.startswith(".") else f".{e.lower()}" for e in (audio_ext or _default_audio_extensions)]
 
     return [p for p in directory.rglob("*") if p.is_file() and p.suffix.lower() in exts and "__MACOSX" not in str(p)]
+
+def list_of_npy_files(
+    directory: Union[str, Path],
+) -> List[Path]:
+    directory = Path(directory)
+    if not directory.is_dir():
+        raise NotADirectoryError(f"{directory} is not a directory")
+
+    # Normalize extensions to lowercase with leading dot
+    exts = ('.npy')
+    
+    return [p for p in directory.rglob("*") if p.is_file() and p.suffix.lower() in exts]
