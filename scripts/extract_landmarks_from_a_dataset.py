@@ -6,8 +6,10 @@ Created: 19/08/2025
 Extracts face landmarks from all videos in a dataset and saves then in a specified directory. Additionally, 
 it extracts metadata that containes information about the video processing and the number of frames.
 
-
+How to run:
     uv run scripts/extract_landmarks_from_a_dataset.py <dataset_dir> [--dst_dir <destination_dir>] [--save_videos]
+Example:
+    uv run scripts/extract_landmarks_from_a_dataset.py /mnt/DataNMVE/grid_dataset
 """
 
 import logging
