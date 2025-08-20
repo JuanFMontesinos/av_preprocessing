@@ -4,7 +4,7 @@ import os
 import sys
 from collections import deque
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Dict, Any
+from typing import Literal, Optional, Tuple, Dict, Any, Union
 
 import imageio
 import numpy as np
@@ -25,10 +25,10 @@ def resample_audio(src_path: str, dst_path: str, target_sr: int, verbose=False, 
 
 
 def extract_landmarks(
-    video_path: str | Path,
-    video_dst: Optional[str | Path] = None,
-    landmarks_dst: Optional[str | Path] = None,
-    metadata_dst: Optional[str | Path] = None,
+    video_path: Union[str, Path],
+    video_dst: Optional[Union[str, Path]] = None,
+    landmarks_dst: Optional[Union[str, Path]] = None,
+    metadata_dst: Optional[Union[str, Path]] = None,
     config_file=paths.LANDMARK_LIB_PATH / "configs" / "mb1_120x120.yml",
     onnx=True,
     n_pre=1,
@@ -256,7 +256,7 @@ def extract_landmarks(
     if save_video:
         writer.close()
     if save_landmarks:
-        np.save(landmarks_dst, np.stack(landmarks).round().astype(np.int16)) # type: ignore
+        np.save(landmarks_dst, np.stack(landmarks).round().astype(np.int16))  # type: ignore
     if save_metadata:
         metadata = {
             "duration": duration,

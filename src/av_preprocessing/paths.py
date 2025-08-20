@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Iterable
+from typing import List, Optional, Iterable, Union
 
 AV_PREPROCESSING_LIB_PATH = Path(__file__).resolve().parent
 ASSETS_PATH = AV_PREPROCESSING_LIB_PATH.parents[1] / "assets"
@@ -11,7 +11,7 @@ _default_audio_extensions: List[str] = [".wav", ".mp3"]
 
 
 def list_of_video_files(
-    directory: str | Path,
+    directory: Union[str, Path],
     video_ext: Optional[Iterable[str]] = None,
 ) -> List[Path]:
     directory = Path(directory)
@@ -25,7 +25,7 @@ def list_of_video_files(
 
 
 def list_of_audio_files(
-    directory: str | Path,
+    directory: Union[str, Path],
     audio_ext: Optional[Iterable[str]] = None,
 ) -> List[Path]:
     directory = Path(directory)
