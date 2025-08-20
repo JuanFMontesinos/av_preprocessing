@@ -2,9 +2,9 @@ from pathlib import Path
 from typing import List, Optional, Iterable
 
 AV_PREPROCESSING_LIB_PATH = Path(__file__).resolve().parent
-AVH_MEAN_FACE_PATH = AV_PREPROCESSING_LIB_PATH / "assets" / "mean_face.npy"
-
+ASSETS_PATH = AV_PREPROCESSING_LIB_PATH.parents[1] / "assets"
 LANDMARK_LIB_PATH = AV_PREPROCESSING_LIB_PATH.parents[1] / "3DDFA_V2"
+AV_HUBERT_LIB_PATH = AV_PREPROCESSING_LIB_PATH.parents[1] / "av_hubert"
 
 _default_video_extensions: List[str] = [".mp4", ".mpg"]
 _default_audio_extensions: List[str] = [".wav", ".mp3"]
