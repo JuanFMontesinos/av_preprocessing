@@ -18,8 +18,8 @@ bash scripts/download_grid.sh "$DEST"
 # Extract landmarks need to locate the face in the image
 uv run scripts/extract_landmarks_from_a_dataset.py "$DEST"
 # Extract the Region of Interest (ROI) from the video frames
-uv run scripts/extract_roi_from_a_dataset.py "$DEST" .mpg
+uv run scripts/extract_rois_from_a_dataset.py "$DEST" .mpg
 #Extract AV Hubert features from the ROIs
 uv run --python 3.9 scripts/extract_avhubert_feats_from_a_dataset.py "$DEST" .mp4
 # Resample audio to 16kHz
-uv run scripts/resample_audio_from_a_dataset.py "$DEST"audio_16kHz 16000
+uv run scripts/resample_audio_dataset.py "$DEST"/audio_16kHz 16000

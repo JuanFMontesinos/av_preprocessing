@@ -173,7 +173,7 @@ def extract_landmarks(
             # detect
             boxes = face_boxes(frame_bgr)  # xmin, ymin, xmax, ymax, score
             if len(boxes) == 0:
-                return True
+                return True, {}
             boxes = [boxes[0]]
             param_lst, roi_box_lst = tddfa(frame_bgr, boxes)
             ver = tddfa.recon_vers(param_lst, roi_box_lst, dense_flag=dense_flag)[0]

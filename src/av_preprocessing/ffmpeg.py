@@ -33,6 +33,8 @@ def get_duration_fps(filename: str, display: Literal["s", "ms", "min", "h"]) -> 
         pattern = "\d{2}:\d{2}:\d{2}.\d{2}"
         dt = re.findall(pattern, duration_str)[0]
         time = ffprobe2ms(dt)
+    else:
+        raise ValueError(f"Could not find duration in {filename}. Is it a valid video file?")
     if fps_line:
         pattern = "(\d{2})(.\d{2})* fps"
         fps_elem = re.findall(pattern, fps_line[0])[0]

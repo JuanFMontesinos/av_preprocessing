@@ -20,7 +20,11 @@ from typing import Optional
 from fire import Fire
 
 import av_preprocessing as avp
-
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 def process_dataset(dataset_dir: str, dst_dir: Optional[str] = None, save_videos: bool = False):
     dataset_path = Path(dataset_dir)  # type: ignore
@@ -41,7 +45,7 @@ def process_dataset(dataset_dir: str, dst_dir: Optional[str] = None, save_videos
         f" and videos will be saved to {videos_dst_dir if save_videos else 'not saved'}"
     )
     for i, video_file in enumerate(video_files):
-        logging.info(f"[{i + 1}/{n_video_files}] Processing {video_file.name}")
+        logging.info(f"[{i + 1}/{n_video_files}] Processing {video_file}")
         failed, metadata = avp.functionals.extract_landmarks(
             video_path=video_file,
             video_dst=videos_dst_dir / video_file.relative_to(dataset_dir) if save_videos else None,

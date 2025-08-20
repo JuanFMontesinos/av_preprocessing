@@ -21,7 +21,7 @@ def list_of_video_files(
     # Normalize extensions to lowercase with leading dot
     exts = [e.lower() if e.startswith(".") else f".{e.lower()}" for e in (video_ext or _default_video_extensions)]
 
-    return [p for p in directory.rglob("*") if p.is_file() and p.suffix.lower() in exts]
+    return [p for p in directory.rglob("*") if p.is_file() and p.suffix.lower() in exts and "__MACOSX" not in str(p)]
 
 
 def list_of_audio_files(
