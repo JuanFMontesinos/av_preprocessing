@@ -18,6 +18,7 @@ dependencies = [
     "onnx",
     "onnxruntime",
     "opencv-python",
+    "polars>=1.32.3",
     "pyyaml",
     "scikit-image",
     "scipy",
